@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Barlow, Zen_Kaku_Gothic_New } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { PwaProvider } from "@/components/pwa/pwa-provider";
 import "./globals.css";
 
 /* Barlow : grotesque de signalisation (voies rapides californiennes) */
@@ -23,12 +24,28 @@ export const metadata: Metadata = {
   title: "Kana Dojo — Apprendre les hiragana et katakana",
   description:
     "Maîtrisez les hiragana et les katakana avec la répétition espacée : les caractères ratés reviennent plus souvent, les réussis s'espacent. Statistiques détaillées, séries quotidiennes et suivi de progression.",
+  manifest: "/manifest.webmanifest",
+  applicationName: "Kana Dojo",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Kana Dojo",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/icons/apple-touch-icon.png",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   keywords: [
     "hiragana", "katakana", "japonais", "kana", "répétition espacée",
     "SRS", "apprendre le japonais", "quiz", "mnémotechnie",
   ],
   authors: [{ name: "Kana Dojo" }],
-  applicationName: "Kana Dojo",
   openGraph: {
     title: "Kana Dojo",
     description: "Hiragana & katakana avec répétition espacée adaptative",
@@ -38,6 +55,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f4f5f3" },
     { media: "(prefers-color-scheme: dark)", color: "#202325" },
@@ -76,7 +94,9 @@ export default function RootLayout({
       >
         <DirectionContract />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
+          <PwaProvider>
+            {children}
+          </PwaProvider>
         </ThemeProvider>
       </body>
     </html>

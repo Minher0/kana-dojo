@@ -74,3 +74,40 @@ export const revealEnter: Variants = {
     transition: { duration: 0.22, ease: EASE_OUT_STRONG },
   },
 };
+
+// ── Extensions SFX/PWA : le monde bouge davantage, sans trahir la pondération ─
+
+/** La rame quitte la station : le panneau part vers l'arrière (sortie de question). */
+export const QUESTION_EXIT_SIDE: Transition = {
+  duration: 0.16,
+  ease: [0.5, 0, 0.9, 0.4] as const,
+};
+
+/** La rame entre en nouvelle station : arrivée latérale franche. */
+export const QUESTION_ENTER_SIDE: Transition = {
+  duration: 0.3,
+  ease: EASE_OUT_STRONG,
+};
+
+/** Ressort du train sur le bandeau de progression (petit bond de joint). */
+export const SPRING_HOP: Transition = {
+  type: "spring",
+  stiffness: 380,
+  damping: 26,
+};
+
+/** Portes de quai : fermeture nette, ouverture décélérée. */
+export const DOOR_CLOSE: Transition = { duration: 0.22, ease: [0.7, 0, 0.3, 1] as const };
+export const DOOR_OPEN: Transition = { duration: 0.3, ease: EASE_OUT_STRONG };
+
+/** Élément de tableau entrant par les portes (latéral). */
+export const doorPanelEnter: Variants = {
+  hidden: { opacity: 0, x: 28, filter: "blur(3px)" },
+  shown: {
+    opacity: 1,
+    x: 0,
+    filter: "blur(0px)",
+    transition: QUESTION_ENTER_SIDE,
+  },
+};
+

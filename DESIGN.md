@@ -74,3 +74,56 @@ Contrastes AA vérifiés jour/nuit ; focus visible 2 px vert ligne ; navigation
 clavier complète (1-4, Entrée, Échap) ; `aria-live` sur le feedback ;
 `aria-pressed` sur les sélecteurs ; cibles tactiles ≥ 44 px ; zéro débordement
 horizontal jusqu'à 320 px.
+
+## La gare vivante : sons (extension SFX)
+
+Moteur `src/lib/sfx.ts` — **tout est synthétisé en Web Audio API**, aucun asset :
+le son naît du monde, il ne le décore pas. Politique d'autoplay respectée
+(l'AudioContext naît au premier geste), master gain + compresseur, réglage
+persisté (`soundOn` / `soundVolume` dans les Settings).
+
+| Évènement | Voix | Langage |
+|---|---|---|
+| Bonne réponse | Carillon de quai 2 notes (C6→G5, partiel inharmonique) | le quai vous salue |
+| Mauvaise réponse | Avertisseur doux, 2 coups graves filtrés | jamais une punition |
+| Question suivante | Whoosh stéréo L→R + chocs de joints de rail | la rame repart |
+| Arrivée en station | Petit carillon | annonce |
+| Départ (Départ) | Avertisseur de portes 3 notes ×2 | 発車前 chime |
+| Nouveau départ (terminus) | 発車メロディー pentatonique | la vraie mélodie de gare |
+| Terminus | Tannoy 3 notes → fanfare (+ étincelles si sans-faute) | célébration |
+
+Haptique Android légère couplée (`navigator.vibrate`, no-op iOS).
+
+## La gare vivante : animations (extensions)
+
+Toutes GPU (transform / opacity / filter), `prefers-reduced-motion` partout :
+
+- **Bandeau LED 次は** (`led-ticker`) : afficheur ambré défilant, fond noir
+  jour et nuit, trame de points — annonce la prochaine station sans divulguer
+  la réponse (code de station uniquement).
+- **Afficheur à palettes** (`flap-display`) : les chiffres du tableau de
+  service roulent comme un Solari, couture de pivot au centre, clac throttlé.
+- **Tampon officiel** (`stamp`) : coup de tampon ressourdé — 正 (vert GO) sur
+  une bonne réponse, 合格 / 満点 (doré) au terminus.
+- **Traînées de vitesse** (`pass-effects`) : le quai file entre les questions ;
+  **RailsAmbiance** : joints et traverses défilent en bas d'écran pendant la
+  session (parallaxe 2 voies).
+- **Rame voyageuse** : un train bondit de station en station sur le `RouteStrip`.
+- **Portes de quai** : changement de vue = fermeture/ouverture de portes plein
+  écran (couture verte, poignées).
+- **Confettis de pastilles** (`confetti`) : réservés au terminus, aux couleurs
+  des lignes.
+- **Horloge de quai** (`station-clock`) : `useSyncExternalStore` par seconde,
+  deux-points qui clignotent.
+
+## PWA : la gare emportée
+
+`manifest.webmanifest` (standalone, raccourci « Nouveau trajet », icônes
+uguisu あ any/maskable générées par rendu navigateur) + `sw.js` écrit main
+(coquille pré-cachée, navigations network-first, statiques cache-first,
+version `KD-SFX-1` à bumper à chaque release). Le **contrat** : le bouton
+d'installation (pastille en-tête + carte gare) n'existe que tant que l'app
+n'est pas installée — Android via `beforeinstallprompt`, iOS via feuille
+d'instructions « Sur l'écran d'accueil ». Installé (`display-mode:
+standalone`) → tout disparaît. Hydratation sans erreur : plateformes lues
+via `useSyncExternalStore` (snapshot serveur pendant l'hydratation).

@@ -45,6 +45,31 @@ mémoire (effet de répétition espacée et test actif).
 - Progression **sauvegardée localement** (localStorage) — aucune donnée envoyée
   sur un serveur, aucun compte requis.
 
+### La gare est vivante (sons & animations)
+- **Effets sonores 100 % synthétisés** (Web Audio API, aucun fichier audio) :
+  carillon de quai pour une bonne réponse, avertisseur doux pour une erreur,
+  avertisseur de portes au départ, mélodie de départ (発車メロディー) au nouveau
+  départ, tannoy + fanfare à l'arrivée en terminus. Bascule persistée dans
+  l'en-tête.
+- **Animations de voyage** : bandeau LED 次は (prochaine station), traînées de
+  vitesse entre les questions, tampon officiel 正 sur les bonnes réponses,
+  tampon doré 合格 / 満点 et pluie de pastilles au terminus, afficheur à palettes
+  (split-flap) sur le tableau de service, rame qui avance sur le bandeau de
+  progression, rails qui défilent en session, portes de quai entre les vues.
+- **Mouvement réduit respecté** partout (`prefers-reduced-motion`).
+
+## Installer sur téléphone (PWA)
+
+Kana Dojo est une **application web installable** (PWA) :
+
+- **Android / Chrome, Edge** : le bouton **« Installer »** apparaît dans l'en-tête
+  et sur la page d'accueil tant que l'application n'est pas installée. Un appui,
+  et l'icône rejoint votre écran d'accueil.
+- **iPhone / Safari** : le bouton **« Comment installer »** ouvre une feuille
+  d'instructions (Partager → « Sur l'écran d'accueil » → Ajouter).
+- Une fois installée, l'application fonctionne **hors connexion** (service worker
+  + cache) et démarre en plein écran. Le bouton disparaît une fois l'app installée.
+
 ## Stack technique
 
 - [Next.js 16](https://nextjs.org) (App Router) + React 19
@@ -52,6 +77,7 @@ mémoire (effet de répétition espacée et test actif).
 - [Tailwind CSS 4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
 - [Framer Motion](https://www.framer.com/motion) (animations)
 - [Phosphor Icons](https://phosphoricons.com) (icônes)
+- Web Audio API (sons synthétisés) + PWA native (manifest, service worker)
 - Graphiques dessinés en CSS depuis les données
 
 ## Lancer en local

@@ -60,6 +60,7 @@ export default function Page() {
       view={view}
       onNavigate={setView}
       focusMode={view === "quiz" && session !== null && !session.finished}
+      line={session?.pool[0]?.script ?? settings.scripts[0]}
     >
       {view === "home" && (
         <HomeView

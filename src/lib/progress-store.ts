@@ -21,6 +21,10 @@ export interface Settings {
   sessionSize: number;
   direction: "kana2romaji" | "romaji2kana" | "mixed";
   mode: "choice" | "typing";
+  /** Effets sonores de la gare (carillons, mélodies, rames). */
+  soundOn?: boolean;
+  /** Volume général des effets (0-1). */
+  soundVolume?: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -29,6 +33,8 @@ export const DEFAULT_SETTINGS: Settings = {
   sessionSize: 10,
   direction: "kana2romaji",
   mode: "choice",
+  soundOn: true,
+  soundVolume: 0.7,
 };
 
 // ── Chargement / sauvegarde bruts ────────────────────────────────────────────
@@ -148,16 +154,17 @@ export function useProgress(): ProgressData {
 // ── Store « settings » ───────────────────────────────────────────────────────
 
 let settingsCache: Settings | null = null;
-const DEFAULTS_SNAPSHOT = { ...DEFAULT_SETTINGS };
 const settingsListeners = new Set<() => void>();
 
-function getSettingsSnapshot(): Settings {
+export function getSettingsSnapshot(): Settings {
   if (settingsCache === null) settingsCache = loadSettingsRaw();
   return settingsCache;
 }
 
+const SETTINGS_SERVER_SNAPSHOT: Settings = { ...DEFAULT_SETTINGS };
+
 function getSettingsServerSnapshot(): Settings {
-  return DEFAULTS_SNAPSHOT;
+  return SETTINGS_SERVER_SNAPSHOT;
 }
 
 function emitSettings(): void {
@@ -189,7 +196,6 @@ export function useSettings(): Settings {
 export function persistSettingsOnce(): void {
   if (settingsCache === null) getSettingsSnapshot();
 }
-
 // ── Utilitaires d'état ───────────────────────────────────────────────────────
 
 export function getCharState(progress: ProgressData, id: string): CharState {

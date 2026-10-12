@@ -1,19 +1,15 @@
 "use client";
 
-// ─── Chiffre de tableau de départ ────────────────────────────────────────────
-// Afficheur de service : libellé compact + grande valeur tabulaire.
-// Compteur en motion values (jamais de setState pour une valeur continue),
-// animé une seule fois au chargement, désactivé si mouvement réduit.
+// ─── Chiffre de tableau de départ (afficheur à palettes) ─────────────────────
+// Compteur Solari : la valeur roule palette par palette depuis zéro.
+// Le clac de palette est throttlé (max ~8/s) pour rester une texture,
+// jamais un vacarme. Mouvement réduit : valeur directe, sans son.
 
-import { useEffect, useRef } from "react";
-import {
-  animate,
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  useTransform,
-} from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { figureEnter } from "./motion";
+import { FlapDisplay } from "./flap-display";
+import { sfx } from "@/lib/sfx";
 import type { Icon } from "@phosphor-icons/react";
 
 interface FigureProps {
@@ -36,28 +32,52 @@ export function Figure({
 }: FigureProps) {
   const reduce = useReducedMotion();
   const target = value ?? 0;
-  const mv = useMotionValue(reduce ? target : target);
-  const rounded = useTransform(mv, (v) => `${Math.round(v)}${suffix}`);
-  const doneRef = useRef(false);
+  const [shown, setShown] = useState(reduce ? target : 0);
+  const [prevTarget, setPrevTarget] = useState(target);
+  const [animEpoch, setAnimEpoch] = useState(0);
+
+  // Ajustement pendant le rendu quand la valeur change (pattern React :
+  // pas d'effet de synchronisation), puis l'animation repart de zéro.
+  if (prevTarget !== target) {
+    setPrevTarget(target);
+    setShown(reduce ? target : 0);
+    setAnimEpoch((e) => e + 1);
+  }
+
+  // Clac de palette, throttlé : la texture sans le vacarme
+  const lastTickRef = useRef(0);
+  const flapTick = useCallback(() => {
+    const now = performance.now();
+    if (now - lastTickRef.current > 130) {
+      lastTickRef.current = now;
+      sfx.flap();
+    }
+  }, []);
 
   useEffect(() => {
-    if (value === null || reduce || doneRef.current) return;
-    doneRef.current = true;
-    const controls = animate(0, value, {
-      duration: 0.5,
-      ease: [0.16, 1, 0.3, 1],
-      onUpdate: (v) => mv.set(v),
-    });
-    return () => controls.stop();
-  }, [value, reduce, mv]);
+    if (reduce || target === 0) return;
 
-  const shown = value === null ? fallback : null;
+    let raf = 0;
+    const started = performance.now();
+    const dur = 620;
+    const step = () => {
+      const t = Math.min(1, (performance.now() - started) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const next = Math.round(target * eased);
+      setShown((prev) => (prev === next ? prev : next));
+      if (t < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [animEpoch, target, reduce]);
+
+  const empty = value === null;
 
   return (
     <motion.div
       variants={figureEnter}
       className={[
-        "flex flex-col gap-1 rounded-lg border bg-card px-4 py-3",
+        "flex flex-col gap-1.5 rounded-lg border bg-card px-4 py-3",
         accent
           ? "border-line-h/35 bg-line-h-soft"
           : "border-border",
@@ -67,17 +87,17 @@ export function Figure({
         {Icon && <Icon size={13} weight="bold" aria-hidden />}
         {label}
       </span>
-      {shown !== null ? (
+      {empty ? (
         <span className="tnum text-2xl font-bold leading-none tracking-tight">
-          {shown}
+          {fallback}
         </span>
       ) : (
-        <motion.span
-          className="tnum text-2xl font-bold leading-none tracking-tight"
-          aria-label={`${value}${suffix}`}
-        >
-          {rounded}
-        </motion.span>
+        <FlapDisplay
+          value={shown}
+          suffix={suffix}
+          onTick={flapTick}
+          ariaValue={`${target}${suffix}`}
+        />
       )}
     </motion.div>
   );

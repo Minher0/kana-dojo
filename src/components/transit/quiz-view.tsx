@@ -3,7 +3,8 @@
 // ─── Vue Trajet (quiz) ────────────────────────────────────────────────────────
 // Le panneau de quai affiche la station, les portes du quai proposent
 // les réponses. Les ratées retournent en interruption : le train y revient.
-// Écran de fin : l'arrivée en terminus, seul moment de délice chorégraphié.
+// Le voyage est sonore (carillons, rames, tannoy) et visuel (traînées,
+// bandeau LED 次は). L'arrivée en terminus reste le moment de délice.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -16,13 +17,19 @@ import {
   X,
 } from "@phosphor-icons/react";
 import {
-  QUESTION_ENTER,
-  QUESTION_EXIT,
+  QUESTION_EXIT_SIDE,
+  QUESTION_ENTER_SIDE,
   SPRING_ARRIVE,
   panelEnter,
 } from "./motion";
 import { RouteStrip } from "./line-strip";
 import { StationSign } from "./station-sign";
+import { LedTicker } from "./led-ticker";
+import { PassStreaks } from "./pass-effects";
+import { RoundelConfetti } from "./confetti";
+import { Stamp } from "./stamp";
+import { stationCodeOf } from "./tokens";
+import { sfx } from "@/lib/sfx";
 import {
   SessionState,
   SessionResult,
@@ -85,6 +92,17 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
     }
   }, [q, finished, feedback]);
 
+  // ── Carillon d'arrivée en station (nouvelle question) ──
+  const stationRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!q || finished) return;
+    if (stationRef.current === q.char.id) return;
+    // La toute première station s'annonce d'elle-même après les portes
+    const isFirst = stationRef.current === null;
+    stationRef.current = q.char.id;
+    if (!reduce && !isFirst) sfx.arrive();
+  }, [q, finished, reduce]);
+
   const submitAnswer = useCallback(
     (answer: string) => {
       if (!session || !session.current || feedback.kind !== "idle" || session.finished) return;
@@ -97,18 +115,23 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
           ? { kind: "correct", expected }
           : { kind: "wrong", expected, given: answer }
       );
+      // La voix de la gare : carillon ou avertisseur
+      if (correct) sfx.correct();
+      else sfx.wrong();
       bump();
 
       // Temps de lecture du panneau avant de repartir
       const delay = correct ? 650 : 1900;
       timerRef.current = window.setTimeout(() => {
+        // La rame repart
+        if (!reduce) sfx.depart();
         advance(session);
         setFeedback({ kind: "idle" });
         setTyped("");
         bump();
       }, delay);
     },
-    [session, feedback, update, bump]
+    [session, feedback, update, bump, reduce]
   );
 
   // ── Raccourcis clavier : 1-4 en mode choix, Échap pour quitter ──
@@ -173,6 +196,9 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
   const isRetake = session.mistakes.has(q.char.id);
   const isKana2Romaji = q.direction === "kana2romaji";
   const lineText = q.char.script === "katakana" ? "text-line-k" : "text-line-h";
+  const lineColor = q.char.script === "katakana" ? "var(--line-k)" : "var(--line-h)";
+  const stationCode = stationCodeOf(q.char);
+  const answeredNow = session.askedIds.size;
 
   return (
     <motion.div
@@ -194,7 +220,7 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
         <div className="min-w-0 flex-1">
           <RouteStrip
             total={session.sessionSize}
-            answered={session.askedIds.size}
+            answered={answeredNow}
             script={q.char.script}
           />
         </div>
@@ -206,16 +232,36 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
         )}
       </div>
 
+      {/* ── Bandeau LED 次は : l'annonce de bord ── */}
+      <motion.div
+        key={`led-${session.step}`}
+        initial={reduce ? false : { opacity: 0, y: -4 }}
+        animate={{ opacity: 1, y: 0, transition: { duration: 0.18 } }}
+      >
+        <LedTicker
+          items={[
+            `次は — STATION SUIVANTE ${stationCode}`,
+            `TRAJET ${answeredNow + 1}/${session.sessionSize}`,
+            "全駅停車 · TOUTES STATIONS",
+            "KANA DOJO LINE — SERVICE CONTINU",
+          ]}
+          duration={14}
+          label={`Prochaine station ${stationCode}, trajet ${answeredNow + 1} sur ${session.sessionSize}`}
+        />
+      </motion.div>
+
       {/* ── Le panneau de la station ── */}
       <AnimatePresence mode="wait">
         <motion.div
           key={`${session.step}-${q.char.id}`}
-          initial={reduce ? false : { opacity: 0, y: 10, filter: "blur(3px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)", transition: QUESTION_ENTER }}
-          exit={reduce ? undefined : { opacity: 0, y: -6, filter: "blur(2px)", transition: QUESTION_EXIT }}
-          className="flex flex-col gap-4"
+          initial={reduce ? false : { opacity: 0, x: 34, filter: "blur(3px)" }}
+          animate={{ opacity: 1, x: 0, filter: "blur(0px)", transition: QUESTION_ENTER_SIDE }}
+          exit={reduce ? undefined : { opacity: 0, x: -30, filter: "blur(2px)", transition: QUESTION_EXIT_SIDE }}
+          className="relative flex flex-col gap-4"
         >
+          {/* Traînées de vitesse : la rame vient d'arriver */}
           <motion.div
+            className="relative"
             animate={
               feedback.kind === "wrong" && !reduce
                 ? { x: [0, -6, 6, -3, 0] }
@@ -223,6 +269,7 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
             }
             transition={{ duration: 0.3 }}
           >
+            <PassStreaks color={lineColor} />
             <StationSign
               char={q.char}
               direction={q.direction}
@@ -243,14 +290,16 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
                   feedback.kind === "wrong" && optValue === feedback.given;
 
                 return (
-                  <button
+                  <motion.button
                     key={opt.id}
                     type="button"
                     disabled={feedback.kind !== "idle"}
                     onClick={() => submitAnswer(optValue)}
+                    initial={reduce ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0, transition: { delay: 0.06 + i * 0.04, duration: 0.24, ease: [0.16, 1, 0.3, 1] } }}
+                    whileTap={reduce ? undefined : { scale: 0.97 }}
                     className={[
                       "relative flex h-16 items-center justify-center rounded-lg border-2 bg-card transition-[border-color,background-color,opacity] duration-150 select-none",
-                      "active:scale-[0.97]",
                       isRight
                         ? "border-signal-go bg-signal-go/10"
                         : isChosenWrong
@@ -274,7 +323,7 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
                     ) : (
                       <span className="font-kana text-3xl font-bold">{opt.kana}</span>
                     )}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -382,6 +431,21 @@ function ArrivalBoard({ result, script, reduce, onRestart, onExit }: ArrivalBoar
   const lineBg = script === "katakana" ? "bg-line-k" : "bg-line-h";
   const dots = Array.from({ length: result.targetSize }, (_, i) => i);
 
+  // La célébration sonore : tannoy, fanfare, étincelles — une seule fois
+  const soundedRef = useRef(false);
+  useEffect(() => {
+    if (soundedRef.current) return;
+    soundedRef.current = true;
+    if (reduce) return;
+    sfx.tannoy();
+    const t1 = window.setTimeout(() => sfx.terminus(), 550);
+    const t2 = clean ? window.setTimeout(() => sfx.perfect(), 1500) : null;
+    return () => {
+      window.clearTimeout(t1);
+      if (t2) window.clearTimeout(t2);
+    };
+  }, [reduce, clean]);
+
   return (
     <motion.div
       initial={reduce ? false : "hidden"}
@@ -389,16 +453,35 @@ function ArrivalBoard({ result, script, reduce, onRestart, onExit }: ArrivalBoar
       variants={{ hidden: {}, shown: { transition: { staggerChildren: 0.06 } } }}
       className="mx-auto flex w-full max-w-xl flex-col gap-5"
     >
-      {/* ── Le trajet s'illumine : le moment signature ── */}
+      {/* ── Annonce de terminus sur le bandeau LED ── */}
       <motion.div
         variants={{
           hidden: { opacity: 0 },
           shown: { opacity: 1, transition: { duration: 0.3 } },
         }}
-        className="sign-panel px-5 py-4"
+      >
+        <LedTicker
+          items={[
+            "終着 · TERMINUS",
+            clean ? "SERVICE PARFAIT · 全駅通過" : "REPRISES EN SUSPEND",
+            "ありがとうございました — MERCI DE VOTRE VOYAGE",
+          ]}
+          duration={16}
+          label="Terminus, fin du trajet. Merci de votre voyage."
+        />
+      </motion.div>
+
+      {/* ── Le trajet s'illumine (et le réseau jette des fleurs) ── */}
+      <motion.div
+        variants={{
+          hidden: { opacity: 0 },
+          shown: { opacity: 1, transition: { duration: 0.3 } },
+        }}
+        className="sign-panel relative overflow-hidden px-5 py-4"
         aria-hidden
       >
-        <div className="flex flex-wrap items-center justify-center gap-x-0 gap-y-2">
+        <RoundelConfetti count={clean ? 30 : 18} />
+        <div className="relative flex flex-wrap items-center justify-center gap-x-0 gap-y-2">
           {dots.map((i) => (
             <motion.span
               key={i}
@@ -416,10 +499,31 @@ function ArrivalBoard({ result, script, reduce, onRestart, onExit }: ArrivalBoar
               <span className={`size-2.5 rounded-full border-2 border-transparent ${lineBg}`} />
             </motion.span>
           ))}
+          {/* La rame termine son service : elle s'installe en bout de quai */}
+          <motion.span
+            initial={reduce ? false : { opacity: 0, x: -18 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, ...SPRING_ARRIVE }}
+            className="ml-3 flex items-center gap-1.5"
+          >
+            <span className={`flex size-5 items-center justify-center rounded-[6px] ${lineBg}`}>
+              <Train size={12} weight="fill" className="text-line-h-foreground" mirrored />
+            </span>
+            <span className="font-kana text-sm font-bold tracking-[0.3em] text-muted-foreground">
+              終着
+            </span>
+          </motion.span>
         </div>
-        <p className="mt-3 text-center font-kana text-sm font-bold tracking-[0.4em] text-muted-foreground" aria-hidden>
-          終着
-        </p>
+
+        {/* Tampon officiel : 合格, doré, 満点 si sans-faute */}
+        <Stamp
+          text={clean ? "満点" : "合格"}
+          size={108}
+          tone="gold"
+          angle={7}
+          delay={0.85}
+          className="absolute right-3 top-2 sm:right-5 sm:top-3"
+        />
       </motion.div>
 
       {/* ── Rapport d'arrivée ── */}
@@ -472,7 +576,11 @@ function ArrivalBoard({ result, script, reduce, onRestart, onExit }: ArrivalBoar
       <motion.div variants={panelEnter} className="flex flex-col gap-3 sm:flex-row">
         <button
           type="button"
-          onClick={onRestart}
+          onClick={() => {
+            // Nouveau départ : la mélodie de départ de la gare
+            sfx.hassha();
+            onRestart();
+          }}
           className="flex h-12 flex-1 items-center justify-center gap-2.5 rounded-lg bg-line-h text-sm font-extrabold uppercase tracking-[0.1em] text-line-h-foreground transition-[filter,opacity] duration-200 hover:brightness-110 active:scale-[0.98]"
         >
           <Train size={18} weight="fill" aria-hidden />

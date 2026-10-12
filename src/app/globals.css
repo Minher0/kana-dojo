@@ -228,6 +228,172 @@ html.dark {
   }
 }
 
+/* ═══ Extentions sonores & PWA : le quai vivant ═════════════════════════════ */
+
+/* ── Bandeau LED (afficheur de quai, toujours sombre) ── */
+.led-ticker {
+  background: oklch(0.17 0.006 250);
+  border: 1px solid oklch(0.28 0.006 250);
+  box-shadow: inset 0 2px 6px oklch(0 0 0 / 0.55),
+    0 1px 2px oklch(0.245 0.014 250 / 0.08);
+}
+.dark .led-ticker {
+  border-color: oklch(0.34 0.006 250);
+}
+.led-text {
+  font-family: var(--font-barlow), var(--font-zen);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: oklch(0.8 0.13 62);
+  text-shadow: 0 0 7px oklch(0.8 0.13 62 / 0.5);
+  white-space: nowrap;
+}
+/* Trame de points : la résolution de l'afficheur */
+.led-ticker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    0deg,
+    oklch(0 0 0 / 0.24) 0 1px,
+    transparent 1px 3px
+  );
+}
+.led-flow {
+  animation: kd-marquee linear infinite;
+  will-change: transform;
+}
+@keyframes kd-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ── Afficheur à palettes (Solari) ── */
+.flap-board {
+  background: oklch(0.21 0.008 250);
+  border: 1px solid oklch(0.32 0.008 250);
+  border-radius: 8px;
+  padding: 3px 5px;
+}
+.flap-cell {
+  background: linear-gradient(
+    180deg,
+    oklch(0.3 0.008 250) 0%,
+    oklch(0.26 0.008 250) 47%,
+    oklch(0.23 0.008 250) 53%,
+    oklch(0.27 0.008 250) 100%
+  );
+  border-radius: 5px;
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.07),
+    inset 0 -1px 0 oklch(0 0 0 / 0.35);
+  color: oklch(0.94 0.003 115);
+  font-weight: 700;
+}
+.flap-seam {
+  height: 2px;
+  background: oklch(0 0 0 / 0.5);
+  box-shadow: 0 1px 0 oklch(1 0 0 / 0.05);
+}
+
+/* ── Feux de signal sur la bande de ligne ── */
+.signal-lamp {
+  width: 9px;
+  height: 9px;
+}
+
+/* ── Horloge : les deux-points respirent ── */
+.kd-blink {
+  animation: kd-blink steps(1) infinite;
+}
+@keyframes kd-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ── Ambiance de bord : joints de rail et traverses qui défilent ── */
+.kd-railway {
+  animation: kd-drift-rail linear infinite;
+}
+@keyframes kd-drift-rail {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: -64px;
+  }
+}
+.kd-sleepers {
+  animation: kd-drift-sleepers linear infinite;
+}
+@keyframes kd-drift-sleepers {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: -33px;
+  }
+}
+
+/* ── Portes de quai (transition entre vues) ── */
+.quai-door {
+  background: var(--background);
+  box-shadow: var(--kd-shadow);
+  will-change: transform;
+}
+.quai-door-left {
+  border-right: 3px solid var(--line-h);
+}
+.quai-door-right {
+  border-left: 3px solid var(--line-h);
+}
+.quai-handle {
+  position: absolute;
+  top: 50%;
+  width: 4px;
+  height: 34px;
+  border-radius: 2px;
+  background: var(--muted-foreground);
+  opacity: 0.6;
+  transform: translateY(-50%);
+}
+.quai-door-left .quai-handle {
+  right: 9px;
+}
+.quai-door-right .quai-handle {
+  left: 9px;
+}
+
+/* ── Maquette de téléphone (carte d'installation) ── */
+.phone-mockup {
+  width: 124px;
+  height: 208px;
+  border-radius: 26px;
+  background: var(--foreground);
+  padding: 5px;
+  box-shadow: var(--kd-shadow);
+}
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  background: var(--card);
+  overflow: hidden;
+}
+
 /* ── Mouvement réduit : tout retombe sur l'état final, jamais de casse ── */
 @media (prefers-reduced-motion: reduce) {
   *,

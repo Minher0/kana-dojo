@@ -18,11 +18,14 @@ import { boardStagger, panelEnter } from "./motion";
 import { Figure } from "./figure";
 import { MasteryStrip } from "./line-strip";
 import { Roundel } from "./roundel";
+import { LedTicker } from "./led-ticker";
 import { SECTIONS, lineOf } from "./tokens";
+import { InstallCard } from "@/components/pwa/install-ui";
 import { KanaChar, KanaGroup } from "@/lib/kana-data";
 import { ProgressData, computeGlobalStats, masteryOf } from "@/lib/srs-engine";
 import { Settings } from "@/lib/progress-store";
 import { getCharState } from "@/lib/progress-store";
+import { sfx } from "@/lib/sfx";
 
 interface HomeViewProps {
   pool: KanaChar[];
@@ -70,7 +73,10 @@ export function HomeView({
     const next = active
       ? settings.scripts.filter((x) => x !== s)
       : [...settings.scripts, s];
-    if (next.length > 0) updateSettings({ scripts: next });
+    if (next.length > 0) {
+      sfx.tap();
+      updateSettings({ scripts: next });
+    }
   };
 
   const toggleGroup = (g: KanaGroup) => {
@@ -78,7 +84,10 @@ export function HomeView({
     const next = active
       ? settings.groups.filter((x) => x !== g)
       : [...settings.groups, g];
-    if (next.length > 0) updateSettings({ groups: next });
+    if (next.length > 0) {
+      sfx.tap();
+      updateSettings({ groups: next });
+    }
   };
 
   return (
@@ -88,6 +97,22 @@ export function HomeView({
       variants={boardStagger}
       className="flex flex-col gap-5"
     >
+      {/* ── Bandeau LED de service : le quai est vivant ── */}
+      <motion.div variants={panelEnter}>
+        <LedTicker
+          items={[
+            "KANA DOJO LINE — SERVICE CONTINU",
+            `全駅停車 · ${stats.mastered}/${pool.length} STATIONS MAÎTRISÉES`,
+            hasData
+              ? `PRÉCISION ${Math.round(stats.accuracy * 100)} % · SÉRIE ${stats.dayStreak} J`
+              : "Bienvenue à bord · ご乗車ありがとうございます",
+            "RÉPÉTITION ESPACÉE — LES RATÉS REVIENNENT",
+          ]}
+          duration={22}
+          label="Tableau de service en marche"
+        />
+      </motion.div>
+
       {/* ── Proposition de valeur, une seule phrase ── */}
       <motion.p
         variants={panelEnter}
@@ -227,7 +252,10 @@ export function HomeView({
                 legend="Longueur"
                 options={[10, 20, 30].map((n) => ({ value: String(n), label: String(n) }))}
                 value={String(settings.sessionSize)}
-                onSelect={(v) => updateSettings({ sessionSize: Number(v) })}
+                onSelect={(v) => {
+                  sfx.tap();
+                  updateSettings({ sessionSize: Number(v) });
+                }}
               />
               <ChipRow
                 legend="Sens"
@@ -237,7 +265,10 @@ export function HomeView({
                   { value: "mixed", label: "Mixte" },
                 ]}
                 value={settings.direction}
-                onSelect={(v) => updateSettings({ direction: v as Settings["direction"] })}
+                onSelect={(v) => {
+                  sfx.tap();
+                  updateSettings({ direction: v as Settings["direction"] });
+                }}
               />
               <ChipRow
                 legend="Réponse"
@@ -246,17 +277,25 @@ export function HomeView({
                   { value: "typing", label: "Saisie" },
                 ]}
                 value={settings.mode}
-                onSelect={(v) => updateSettings({ mode: v as Settings["mode"] })}
+                onSelect={(v) => {
+                  sfx.tap();
+                  updateSettings({ mode: v as Settings["mode"] });
+                }}
               />
             </div>
 
             {/* Départ */}
             <div className="flex flex-col gap-2.5">
-              <button
+              <motion.button
                 type="button"
-                onClick={onStart}
+                onClick={() => {
+                  sfx.doors();
+                  onStart();
+                }}
                 disabled={poolEmpty}
-                className="flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-line-h text-base font-extrabold uppercase tracking-[0.1em] text-line-h-foreground shadow-sign transition-[filter,opacity] duration-200 hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:brightness-100 sm:w-auto sm:px-8"
+                whileHover={reduce ? undefined : { scale: 1.015 }}
+                whileTap={reduce ? undefined : { scale: 0.98 }}
+                className="flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-line-h text-base font-extrabold uppercase tracking-[0.1em] text-line-h-foreground shadow-sign transition-[filter,opacity] duration-200 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:brightness-100 sm:w-auto sm:px-8"
               >
                 <Train size={20} weight="fill" aria-hidden />
                 Départ
@@ -264,7 +303,7 @@ export function HomeView({
                 <span className="tnum font-bold normal-case tracking-normal opacity-90">
                   {Math.min(settings.sessionSize, pool.length)} stations
                 </span>
-              </button>
+              </motion.button>
               <p className="text-xs text-muted-foreground">
                 {poolEmpty
                   ? "Sélectionnez au moins une ligne et une section pour partir."
@@ -335,6 +374,9 @@ export function HomeView({
           </div>
         </motion.aside>
       </div>
+
+      {/* ── Installation sur l'écran d'accueil (tant que ce n'est pas fait) ── */}
+      <InstallCard />
     </motion.div>
   );
 }

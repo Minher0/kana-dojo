@@ -7,7 +7,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { lineOf, stationCodeOf } from "./tokens";
-import { revealEnter } from "./motion";
+import { revealEnter, QUESTION_ENTER_SIDE } from "./motion";
+import { Stamp } from "./stamp";
 import { KanaChar } from "@/lib/kana-data";
 import type { Direction } from "@/lib/session-engine";
 
@@ -40,7 +41,7 @@ export function StationSign({ char, direction, revealed, isRetake, correct }: St
   return (
     <div
       className={[
-        "sign-panel overflow-hidden",
+        "sign-panel relative overflow-hidden",
         correct === false ? "border-signal-stop/50" : "",
         correct === true ? "border-signal-go/50" : "",
       ].join(" ")}
@@ -56,17 +57,52 @@ export function StationSign({ char, direction, revealed, isRetake, correct }: St
             {line.name}
           </span>
         </span>
-        {isRetake && (
-          <span className="rounded-sm bg-black/25 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em]">
-            Reprise
-          </span>
-        )}
+        <span className="flex items-center gap-2">
+          {/* Feux de signal : aspect selon la réponse, éteints sinon */}
+          <span
+            aria-hidden
+            className={[
+              "signal-lamp inline-block rounded-full transition-colors duration-150",
+              correct === true
+                ? "bg-line-h-foreground shadow-[0_0_8px_rgba(255,255,255,0.45)]"
+                : "bg-black/25",
+            ].join(" ")}
+          />
+          <span
+            aria-hidden
+            className={[
+              "signal-lamp inline-block rounded-full transition-colors duration-150",
+              correct === false
+                ? "bg-signal-stop shadow-[0_0_8px_var(--signal-stop)]"
+                : "bg-black/25",
+            ].join(" ")}
+          />
+          {isRetake && (
+            <span className="ml-1 rounded-sm bg-black/25 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em]">
+              Reprise
+            </span>
+          )}
+        </span>
       </div>
 
       {/* Zone d'affichage : le glyphe et sa transcription */}
-      <div className="flex min-h-[13rem] flex-col items-center justify-center gap-1 px-6 py-8 sm:min-h-[15rem]">
-        <span
+      <div className="relative flex min-h-[13rem] flex-col items-center justify-center gap-1 px-6 py-8 sm:min-h-[15rem]">
+        {/* Tampon officiel : coupé sur la réponse juste, et rien sinon. */}
+        {correct === true && (
+          <Stamp
+            text="正"
+            size={86}
+            tone="go"
+            angle={-9}
+            delay={0.12}
+            className="absolute right-3 top-2 sm:right-5 sm:top-3"
+          />
+        )}
+        <motion.span
           key={`glyph-${glyph}`}
+          initial={false}
+          animate={{ scale: [0.86, 1], opacity: [0.4, 1], filter: ["blur(6px)", "blur(0px)"] }}
+          transition={QUESTION_ENTER_SIDE}
           className={[
             "select-none leading-none",
             isKana2Romaji
@@ -77,7 +113,7 @@ export function StationSign({ char, direction, revealed, isRetake, correct }: St
           aria-label={`Quelle est la transcription de ${glyph} ?`}
         >
           {glyph}
-        </span>
+        </motion.span>
 
         <AnimatePresence mode="wait">
           {revealed ? (

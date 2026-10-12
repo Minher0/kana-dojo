@@ -132,12 +132,19 @@ utilisateur au lancement froid (politique autoplay).
 
 ## Mode de réponse « mix »
 
-Troisième mode de réponse (après Choix et Saisie) : chaque question montre
-**les portes de quai ET le billet de saisie simultanément**, séparés par une
-couture « ou tapez ». Répondre par clic, par raccourcis 1-4, ou au clavier
-(Entrée) — au choix, question par question. Règle de cohabitation : les
-raccourcis 1-4 se désactivent dès que le billet a le focus (jamais de vol
-de chiffres tapés) ; le focus auto reste réservé au mode Saisie pur.
+Troisième mode de réponse (après Choix et Saisie) : **la moitié des
+questions se joue aux portes (QCM), l'autre moitié au billet de saisie**.
+La répartition n'est pas au choix de l'usager, question par question : le
+moteur de session établit l'horaire au départ (`modeSchedule`, ⌈N/2⌉ QCM +
+⌊N/2⌋ saisie, ordre battu, indexé par pas de question ; au-delà de
+l'horaire — reprises en surnombre — alternance pour préserver l'équilibre).
+Chaque question est donc **exclusivement** portes OU billet, jamais les
+deux : l'afficheur LED de bord annonce le mode de la station
+(`RÉPONSE : PORTES · QCM` / `RÉPONSE : BILLET · SAISIE`), les raccourcis
+1-4 n'existent que sur les questions à portes (aucun vol de chiffres
+possible), et le billet prend le focus à son montage (`autoFocus` — un
+effet courrait trop tôt, l'AnimatePresence « wait » retarde le montage
+après la sortie de la question précédente).
 
 ## PWA : la gare emportée
 
@@ -145,7 +152,7 @@ de chiffres tapés) ; le focus auto reste réservé au mode Saisie pur.
 logo maison — disque vert smiley — « any » rognées cercle + maskables
 plein carré, issues du PNG source) + `sw.js` écrit main
 (coquille pré-cachée, navigations network-first, statiques cache-first,
-version `KD-LAUNCH-1` à bumper à chaque release). La marque en en-tête est le
+version `KD-MIX-1` à bumper à chaque release). La marque en en-tête est le
 logo maison (`/logo.png`, rogné `rounded-full`) à la place de l'ancienne
 pastille あ. Le **contrat** : le bouton
 d'installation (pastille en-tête + carte gare) n'existe que tant que l'app

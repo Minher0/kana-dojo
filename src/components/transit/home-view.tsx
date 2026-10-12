@@ -308,7 +308,9 @@ export function HomeView({
               <p className="text-xs text-muted-foreground">
                 {poolEmpty
                   ? "Sélectionnez au moins une ligne et une section pour partir."
-                  : "Les stations ratées reviennent jusqu'à être réussies, puis le SRS les espaces."}
+                  : settings.mode === "mix"
+                    ? "En mode Mix, la moitié des stations se jouent aux portes (QCM), l'autre moitié au clavier (saisie) — l'ordre est tiré au départ. Les ratées reviennent jusqu'à être réussies."
+                    : "Les stations ratées reviennent jusqu'à être réussies, puis le SRS les espace."}
               </p>
             </div>
           </div>

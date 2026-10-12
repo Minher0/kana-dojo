@@ -4,13 +4,19 @@ import { KanaChar, KANA_BY_ID } from "./kana-data";
 import { ProgressData, buildQueue } from "./srs-engine";
 
 export type Direction = "kana2romaji" | "romaji2kana";
-/** Mode de réponse : choix multiples, saisie clavier, ou les deux à la fois. */
+/** Mode de réponse de la session (réglage) : choix, saisie, ou mix. */
 export type QuizMode = "choice" | "typing" | "mix";
+/**
+ * Mode effectif d'une question. En session « mix », chaque question reçoit
+ * l'un ou l'autre au départ : la moitié du trajet se joue aux portes (QCM),
+ * l'autre moitié au billet de saisie — l'ordre est tiré au sort.
+ */
+export type ResolvedMode = "choice" | "typing";
 
 export interface SessionQuestion {
   char: KanaChar;
   direction: Direction;
-  mode: QuizMode;
+  mode: ResolvedMode;
   options: KanaChar[]; // 4 options (mode choix) — index 0 = bonne réponse
 }
 
@@ -28,6 +34,9 @@ export interface SessionState {
   direction: Direction;
   mixed: boolean;
   mode: QuizMode;
+  /** Horaire des modes : modeSchedule[step] = mode de la question présentée
+   *  au pas `step`. Vide hors sessions « mix ». */
+  modeSchedule: ResolvedMode[];
   sessionSize: number;
   queue: string[];          // charIds à venir
   requeueAfter: { charId: string; atStep: number }[];
@@ -96,6 +105,20 @@ function nextDirection(base: Direction, step: number, forceMixed: boolean): Dire
   return (step % 5 === 3 || step % 5 === 4) ? "romaji2kana" : "kana2romaji";
 }
 
+// ── Horaire des modes (sessions « mix ») ────────────────────────────────────
+// La moitié des stations en QCM, l'autre moitié en saisie, ordre battu :
+// l'usager ne choisit pas par question, le service d'exploitation a déjà
+// établi la feuille de route quand le train part.
+
+function buildModeSchedule(size: number): ResolvedMode[] {
+  const typingCount = Math.floor(size / 2);
+  const schedule: ResolvedMode[] = Array.from(
+    { length: size },
+    (_, i) => (i < size - typingCount ? "choice" : "typing")
+  );
+  return shuffle(schedule);
+}
+
 // ── Session ──────────────────────────────────────────────────────────────────
 
 export function createSession(
@@ -110,12 +133,14 @@ export function createSession(
   const baseDirection: Direction = opts.direction === "mixed" ? "kana2romaji" : opts.direction;
   const size = Math.min(opts.sessionSize, pool.length);
   const queue = buildQueue(pool, progress, size);
+  const modeSchedule = opts.mode === "mix" ? buildModeSchedule(size) : [];
 
   const state: SessionState = {
     pool,
     direction: baseDirection,
     mixed: opts.direction === "mixed",
     mode: opts.mode,
+    modeSchedule,
     sessionSize: size,
     queue: queue.map((c) => c.id),
     requeueAfter: [],
@@ -166,9 +191,16 @@ function buildQuestion(state: SessionState, stepOffset: number): SessionQuestion
 
   const options = shuffle([char, ...pickDistractors(char, state.pool, 3)]);
 
-  // Mode « mix » : la question porte le mode tel quel — la vue de quiz
-  // affiche alors les portes de quai ET le billet de saisie simultanément.
-  return { char, direction: dir, mode: state.mode, options };
+  // Mode effectif de la question : en « mix », l'horaire décide (QCM ou
+  // saisie, moitié-moitié) ; au-delà de l'horaire (reprises en surnombre),
+  // on alterne pour préserver l'équilibre jusqu'au terminus.
+  const step = state.step + stepOffset;
+  const mode: ResolvedMode =
+    state.mode === "mix"
+      ? (state.modeSchedule[step] ?? (step % 2 === 0 ? "choice" : "typing"))
+      : state.mode;
+
+  return { char, direction: dir, mode, options };
 }
 
 export function answerCurrent(

@@ -28,7 +28,8 @@ mémoire (effet de répétition espacée et test actif).
 - **Sens** : kana → rōmaji, rōmaji → kana, ou mixte.
 - **Réponse** : choix multiples (raccourcis clavier 1-4), saisie clavier
   (variantes acceptées : *shi/si*, *chi/ti*, *fu/hu*…), ou **mix** —
-  les deux disponibles en même temps sur chaque question.
+  la moitié des questions en QCM, l'autre moitié en saisie (répartition
+  tirée au départ, l'ordre est battu).
 - **Démarrage** : au lancement, une « mise en service » animée (logo,
   enseigne, LED, portes de quai qui s'ouvrent sur la gare) — non bloquante.
 

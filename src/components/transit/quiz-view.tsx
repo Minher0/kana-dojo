@@ -85,12 +85,10 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
     };
   }, []);
 
-  // ── Focus auto en mode saisie ──
-  useEffect(() => {
-    if (q?.mode === "typing" && !finished && feedback.kind === "idle") {
-      inputRef.current?.focus();
-    }
-  }, [q, finished, feedback]);
+  // ── Focus auto sur le billet : au montage de chaque question de saisie ──
+  // (l'attribut autoFocus ci-dessous le pose au montage ; l'AnimatePresence
+  // « wait » retarde ledit montage après la sortie de la question précédente,
+  // un effet courrait donc trop tôt et focaliserait le billet qui part).
 
   // ── Carillon d'arrivée en station (nouvelle question) ──
   const stationRef = useRef<string | null>(null);
@@ -134,8 +132,9 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
     [session, feedback, update, bump, reduce]
   );
 
-  // ── Raccourcis clavier : 1-4 en mode choix (et mix si le billet n'a pas
-  // le focus — on ne vole jamais les chiffres tapés), Échap pour quitter ──
+  // ── Raccourcis clavier : 1-4 sur les questions à portes (les questions
+  // de saisie ne montrent aucune porte — leurs touches vont au billet),
+  // Échap pour quitter ──
   // Règle Emil : le geste clavier est instantané, seul le panneau réagit.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -145,10 +144,8 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
         return;
       }
       if (!q || finished) return;
-      if (q.mode !== "choice" && q.mode !== "mix") return;
+      if (q.mode !== "choice") return;
       if (feedback.kind !== "idle") return;
-      // En mix : si le billet de saisie a le focus, les touches vont au texte
-      if (document.activeElement === inputRef.current) return;
       const idx = Number(e.key) - 1;
       if (idx >= 0 && idx < q.options.length) {
         e.preventDefault();
@@ -246,6 +243,10 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
           items={[
             `次は — STATION SUIVANTE ${stationCode}`,
             `TRAJET ${answeredNow + 1}/${session.sessionSize}`,
+            // En session mix, l'afficheur de bord annonce le mode de la station
+            ...(session.mode === "mix"
+              ? [q.mode === "choice" ? "RÉPONSE : PORTES · QCM" : "RÉPONSE : BILLET · SAISIE"]
+              : []),
             "全駅停車 · TOUTES STATIONS",
             "KANA DOJO LINE — SERVICE CONTINU",
           ]}
@@ -283,8 +284,8 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
             />
           </motion.div>
 
-          {/* ── Portes du quai (choix — pures ou mixtes) ── */}
-          {q.mode !== "typing" && (
+          {/* ── Portes du quai (questions QCM — pures ou tirées en mix) ── */}
+          {q.mode === "choice" && (
             <div className="grid grid-cols-2 gap-2.5" role="group" aria-label="Réponses possibles">
               {q.options.map((opt, i) => {
                 const optValue = isKana2Romaji ? opt.romaji : opt.kana;
@@ -333,19 +334,8 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
             </div>
           )}
 
-          {/* ── Couture « ou tapez » : en mix, les deux gestes cohabitent ── */}
-          {q.mode === "mix" && feedback.kind === "idle" && (
-            <div className="flex items-center gap-3 px-6" aria-hidden>
-              <span className="h-px flex-1 bg-border" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                ou tapez
-              </span>
-              <span className="h-px flex-1 bg-border" />
-            </div>
-          )}
-
-          {/* ── Billet de saisie (purs et mixtes) ── */}
-          {(q.mode === "typing" || q.mode === "mix") && (
+          {/* ── Billet de saisie (questions de saisie — pures ou tirées en mix) ── */}
+          {q.mode === "typing" && (
             <form
               className="flex flex-col items-center gap-2"
               onSubmit={(e) => {
@@ -358,6 +348,7 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
                 value={typed}
                 onChange={(e) => setTyped(e.target.value)}
                 disabled={feedback.kind !== "idle"}
+                autoFocus
                 placeholder={isKana2Romaji ? "rōmaji, ex : ka" : "kana, ex : き"}
                 aria-label="Votre réponse"
                 autoComplete="off"
@@ -419,12 +410,10 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
         </AnimatePresence>
       </div>
 
-      {/* ── Aide clavier, discrète ── */}
-      {feedback.kind === "idle" && !finished && (q.mode === "choice" || q.mode === "mix") && (
+      {/* ── Aide clavier, discrète (uniquement les questions à portes) ── */}
+      {feedback.kind === "idle" && !finished && q.mode === "choice" && (
         <p className="text-center text-[11px] text-muted-foreground/70">
-          {q.mode === "mix"
-            ? "Touches 1 à 4 pour répondre, ou tapez votre réponse"
-            : "Touches 1 à 4 pour répondre"}
+          Touches 1 à 4 pour répondre
         </p>
       )}
     </motion.div>

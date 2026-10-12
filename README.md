@@ -34,8 +34,13 @@ mémoire (effet de répétition espacée et test actif).
 - **Tables de référence** hiragana/katakana avec code couleur de maîtrise.
 
 ### Détails soignés
-- Thème **papier washi / encre sumi / vermillon**, mode sombre.
-- Typographie japonaise [Noto Serif JP](https://fonts.google.com/noto/specimen/Noto+Serif+JP).
+- Identité visuelle **« signalétique ferroviaire japonaise »** : chaque syllabaire
+  est une ligne (H / K), chaque kana une station, chaque session un trajet.
+  Voir [DESIGN.md](./DESIGN.md).
+- Typographie [Zen Kaku Gothic New](https://fonts.google.com/specimen/Zen+Kaku+Gothic+New)
+  (kana) + [Barlow](https://fonts.google.com/specimen/Barlow) (latin, chiffres tabulaires),
+  mode jour / nuit.
+- Écran d'arrivée en terminus, codes de station façon Tokyo (H-01 à K-104).
 - Entièrement **responsive** (mobile, tablette, desktop).
 - Progression **sauvegardée localement** (localStorage) — aucune donnée envoyée
   sur un serveur, aucun compte requis.
@@ -46,7 +51,8 @@ mémoire (effet de répétition espacée et test actif).
 - TypeScript strict
 - [Tailwind CSS 4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
 - [Framer Motion](https://www.framer.com/motion) (animations)
-- [Recharts](https://recharts.org) (graphiques)
+- [Phosphor Icons](https://phosphoricons.com) (icônes)
+- Graphiques dessinés en CSS depuis les données
 
 ## Lancer en local
 

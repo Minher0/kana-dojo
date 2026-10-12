@@ -3,40 +3,56 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   KANA DOJO · SYSTEME DE DESIGN « SIGNALÉTIQUE FERROVIAIRE »
+
+   Monde : le réseau ferroviaire japonais. Chaque syllabaire est une ligne,
+   chaque kana une station, chaque session un trajet. La signalétique des
+   gares japonaises (kana + rōmaji côte à côte) est le vernaculaire du produit.
+
+   Rôles de couleur (stratégie « palette pleine », 4 rôles nommés) :
+   - Ligne H (hiragana) : vert uguisu profond      → identité principale
+   - Ligne K (katakana) : orange Chūō              → identité secondaire
+   - Signal GO / STOP  : verts/rouges de signal    → feedback uniquement
+   - Encre / tableau    : blanc froid + encre froide (jamais crème)
+
+   Clavier de formes : panneaux arrondis (12px), contrôles (8px),
+   pastilles de station (cercles). Un seul système, verrouillé.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
+  --font-sans: var(--font-barlow);
+  --font-mono: var(--font-barlow);
+  --font-kana: var(--font-zen);
+  --shadow-sign: var(--kd-shadow);
   --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-line-h: var(--line-h);
+  --color-line-h-foreground: var(--line-h-foreground);
+  --color-line-h-soft: var(--line-h-soft);
+  --color-line-k: var(--line-k);
+  --color-line-k-foreground: var(--line-k-foreground);
+  --color-line-k-soft: var(--line-k-soft);
+  --color-signal-go: var(--signal-go);
+  --color-signal-stop: var(--signal-stop);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -45,123 +61,181 @@
 
 :root {
   --radius: 0.625rem;
-  /* ── Thème washi : papier crème, encre sumi, vermillon torii ── */
-  --background: oklch(0.976 0.008 85);
-  --foreground: oklch(0.22 0.012 60);
-  --card: oklch(0.992 0.004 85);
-  --card-foreground: oklch(0.22 0.012 60);
-  --popover: oklch(0.992 0.004 85);
-  --popover-foreground: oklch(0.22 0.012 60);
-  --primary: oklch(0.552 0.192 29);
-  --primary-foreground: oklch(0.985 0.004 85);
-  --secondary: oklch(0.949 0.014 80);
-  --secondary-foreground: oklch(0.32 0.014 60);
-  --muted: oklch(0.949 0.01 80);
-  --muted-foreground: oklch(0.52 0.014 60);
-  --accent: oklch(0.933 0.028 65);
-  --accent-foreground: oklch(0.32 0.024 50);
-  --destructive: oklch(0.577 0.21 27);
-  --border: oklch(0.914 0.012 70);
-  --input: oklch(0.914 0.012 70);
-  --ring: oklch(0.552 0.192 29);
-  --chart-1: oklch(0.552 0.192 29);
-  --chart-2: oklch(0.62 0.13 95);
-  --chart-3: oklch(0.76 0.09 85);
-  --chart-4: oklch(0.68 0.06 140);
-  --chart-5: oklch(0.45 0.05 60);
-  --sidebar: oklch(0.976 0.008 85);
-  --sidebar-foreground: oklch(0.22 0.012 60);
-  --sidebar-primary: oklch(0.552 0.192 29);
-  --sidebar-primary-foreground: oklch(0.985 0.004 85);
-  --sidebar-accent: oklch(0.933 0.028 65);
-  --sidebar-accent-foreground: oklch(0.32 0.024 50);
-  --sidebar-border: oklch(0.914 0.012 70);
-  --sidebar-ring: oklch(0.552 0.192 29);
-  --success: oklch(0.62 0.14 145);
+
+  /* ── Jour : panneaux d'émail, lumière de quai ── */
+  --background: oklch(0.972 0.003 115);
+  --foreground: oklch(0.245 0.014 250);
+  --card: oklch(0.994 0.001 115);
+  --card-foreground: oklch(0.245 0.014 250);
+  --popover: oklch(0.994 0.001 115);
+  --popover-foreground: oklch(0.245 0.014 250);
+
+  /* Ligne H : vert uguisu (identité principale, verrouillée) */
+  --line-h: oklch(0.47 0.085 152);
+  --line-h-foreground: oklch(0.985 0.002 115);
+  --line-h-soft: oklch(0.52 0.1 152 / 12%);
+
+  /* Ligne K : orange Chūō (identité katakana uniquement) */
+  --line-k: oklch(0.55 0.115 55);
+  --line-k-foreground: oklch(0.99 0.005 115);
+  --line-k-soft: oklch(0.62 0.13 55 / 14%);
+
+  /* Signaux : feedback de réponse uniquement, jamais décoratif */
+  --signal-go: oklch(0.48 0.125 155);
+  --signal-stop: oklch(0.5 0.19 27);
+  --warning: oklch(0.58 0.125 75);
+  --warning-soft: oklch(0.7 0.12 75 / 15%);
+
+  --primary: var(--line-h);
+  --primary-foreground: var(--line-h-foreground);
+  --secondary: oklch(0.945 0.004 115);
+  --secondary-foreground: oklch(0.3 0.014 250);
+  --muted: oklch(0.945 0.003 115);
+  --muted-foreground: oklch(0.42 0.012 250);
+  --accent: oklch(0.925 0.01 150);
+  --accent-foreground: oklch(0.3 0.02 152);
+  --destructive: var(--signal-stop);
+  --border: oklch(0.885 0.004 115);
+  --input: oklch(0.885 0.004 115);
+  --ring: oklch(0.47 0.085 152);
+
+  --kd-shadow: 0 1px 2px oklch(0.245 0.014 250 / 0.05),
+    0 6px 16px -6px oklch(0.245 0.014 250 / 0.1);
+  --kd-shadow-band: 0 1px 0 oklch(0 0 0 / 0.08);
 }
 
 .dark {
-  /* ── Nuit sumi : encre profonde, vermillon chaud, or discret ── */
-  --background: oklch(0.185 0.008 60);
-  --foreground: oklch(0.94 0.008 80);
-  --card: oklch(0.235 0.01 60);
-  --card-foreground: oklch(0.94 0.008 80);
-  --popover: oklch(0.235 0.01 60);
-  --popover-foreground: oklch(0.94 0.008 80);
-  --primary: oklch(0.66 0.185 29);
-  --primary-foreground: oklch(0.16 0.01 60);
-  --secondary: oklch(0.29 0.012 60);
-  --secondary-foreground: oklch(0.94 0.008 80);
-  --muted: oklch(0.29 0.01 60);
-  --muted-foreground: oklch(0.7 0.012 70);
-  --accent: oklch(0.31 0.03 45);
-  --accent-foreground: oklch(0.94 0.008 80);
-  --destructive: oklch(0.65 0.19 25);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.66 0.185 29);
-  --chart-1: oklch(0.66 0.185 29);
-  --chart-2: oklch(0.72 0.13 95);
-  --chart-3: oklch(0.62 0.09 140);
-  --chart-4: oklch(0.8 0.1 85);
-  --chart-5: oklch(0.6 0.05 60);
-  --sidebar: oklch(0.235 0.01 60);
-  --sidebar-foreground: oklch(0.94 0.008 80);
-  --sidebar-primary: oklch(0.66 0.185 29);
-  --sidebar-primary-foreground: oklch(0.16 0.01 60);
-  --sidebar-accent: oklch(0.31 0.03 45);
-  --sidebar-accent-foreground: oklch(0.94 0.008 80);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.66 0.185 29);
-  --success: oklch(0.7 0.14 145);
+  /* ── Nuit : quai éclairé, panneaux LED ── */
+  --background: oklch(0.208 0.007 250);
+  --foreground: oklch(0.945 0.003 115);
+  --card: oklch(0.255 0.008 250);
+  --card-foreground: oklch(0.945 0.003 115);
+  --popover: oklch(0.27 0.008 250);
+  --popover-foreground: oklch(0.945 0.003 115);
+
+  --line-h: oklch(0.7 0.09 152);
+  --line-h-foreground: oklch(0.205 0.01 250);
+  --line-h-soft: oklch(0.7 0.1 152 / 16%);
+
+  --line-k: oklch(0.72 0.095 58);
+  --line-k-foreground: oklch(0.205 0.01 250);
+  --line-k-soft: oklch(0.75 0.11 60 / 16%);
+
+  --signal-go: oklch(0.66 0.12 155);
+  --signal-stop: oklch(0.65 0.17 27);
+  --warning: oklch(0.7 0.12 75);
+  --warning-soft: oklch(0.7 0.12 75 / 16%);
+
+  --primary: var(--line-h);
+  --primary-foreground: var(--line-h-foreground);
+  --secondary: oklch(0.29 0.008 250);
+  --secondary-foreground: oklch(0.9 0.003 115);
+  --muted: oklch(0.29 0.006 250);
+  --muted-foreground: oklch(0.72 0.01 250);
+  --accent: oklch(0.32 0.03 152);
+  --accent-foreground: oklch(0.93 0.005 115);
+  --destructive: var(--signal-stop);
+  --border: oklch(1 0 0 / 11%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.7 0.09 152);
+
+  --kd-shadow: 0 1px 2px oklch(0 0 0 / 0.4);
+  --kd-shadow-band: none;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+/* ── Surfaces navigateur (le détail qui distingue l'assemblé du construit) ── */
+::selection {
+  background: var(--line-h);
+  color: var(--line-h-foreground);
 }
 
-/* ── Typographie kana : sérif japonais élégant pour les grands caractères ── */
-.font-kana {
-  font-family: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
-  font-weight: 500;
+html {
+  color-scheme: light;
+}
+.dark html,
+html.dark {
+  color-scheme: dark;
 }
 
-/* ── Scrollbar discrète façon encre ── */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
-.custom-scrollbar::-webkit-scrollbar-track {
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-track {
   background: transparent;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--foreground) 18%, transparent);
-  border-radius: 999px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklab, var(--foreground) 30%, transparent);
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
-/* ── Texture papier washi subtile ── */
-.washi-texture {
-  background-image: radial-gradient(
-    color-mix(in oklab, var(--foreground) 4%, transparent) 0.5px,
-    transparent 0.5px
-  );
-  background-size: 14px 14px;
+/* Chiffres tabulaires partout où les données s'affichent */
+.tnum {
+  font-variant-numeric: tabular-nums;
 }
 
-/* ── Ligne d'accent vermillon ── */
-.accent-bar {
-  background: linear-gradient(
-    90deg,
-    var(--primary) 0%,
-    color-mix(in oklab, var(--primary) 60%, transparent) 60%,
-    transparent 100%
-  );
+/* Panneau signalétique : bord net, ombre douce teintée */
+.sign-panel {
+  border: 2px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--card);
+  box-shadow: var(--kd-shadow);
+}
+.dark .sign-panel {
+  box-shadow: none;
+}
+
+/* Bande de ligne (haut des panneaux, comme les suspentes de quai) */
+.line-band {
+  color: var(--line-h-foreground);
+  box-shadow: var(--kd-shadow-band);
+}
+
+/* Rail de ligne (trait horizontal reliant les stations) */
+.line-rail {
+  background: var(--border);
+}
+
+@keyframes kd-arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes kd-draw-rail {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ── Mouvement réduit : tout retombe sur l'état final, jamais de casse ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

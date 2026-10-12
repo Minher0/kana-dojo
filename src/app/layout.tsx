@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Barlow, Zen_Kaku_Gothic_New } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { PwaProvider } from "@/components/pwa/pwa-provider";
+import { LaunchIntro } from "@/components/transit/launch-intro";
 import "./globals.css";
 
 /* Barlow : grotesque de signalisation (voies rapides californiennes) */
@@ -93,6 +94,7 @@ export default function RootLayout({
         className={`${barlow.variable} ${zen.variable} antialiased bg-background text-foreground font-sans`}
       >
         <DirectionContract />
+        <LaunchIntro />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <PwaProvider>
             {children}

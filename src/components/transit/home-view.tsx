@@ -275,6 +275,7 @@ export function HomeView({
                 options={[
                   { value: "choice", label: "Choix" },
                   { value: "typing", label: "Saisie" },
+                  { value: "mix", label: "Mix" },
                 ]}
                 value={settings.mode}
                 onSelect={(v) => {

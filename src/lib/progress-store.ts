@@ -20,7 +20,8 @@ export interface Settings {
   groups: ("base" | "dakuten" | "yoon")[];
   sessionSize: number;
   direction: "kana2romaji" | "romaji2kana" | "mixed";
-  mode: "choice" | "typing";
+  /** Mode de réponse : choix, saisie clavier, ou les deux à la fois (mix). */
+  mode: "choice" | "typing" | "mix";
   /** Effets sonores de la gare (carillons, mélodies, rames). */
   soundOn?: boolean;
   /** Volume général des effets (0-1). */

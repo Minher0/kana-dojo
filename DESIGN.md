@@ -116,13 +116,36 @@ Toutes GPU (transform / opacity / filter), `prefers-reduced-motion` partout :
 - **Horloge de quai** (`station-clock`) : `useSyncExternalStore` par seconde,
   deux-points qui clignotent.
 
+## Séquence de démarrage : la mise en service
+
+« Mise en service » (1,84 s) au lancement — là où l'OS laisse un splash figé,
+le décor est rendu par le SSR **avant l'hydratation** : le logo-ressort, la
+signature d'enseigne (Barlow 800 + Zen Kaku), le bandeau LED 開業 ·
+SERVICE OUVERT, puis les **portes de quai** referment la scène (la rame
+arrive) et l'ouvrent sur l'application. Timeline 100 % CSS (keyframes à
+offsets déclarés : portes fermées à 1,30 s, rouvertes à 1,84 s),
+**non bloquante** (`pointer-events: none` : l'app est interactive pendant
+la lecture), palette verrouillée jour (raccord avec le splash de l'OS :
+fond émail du manifest), `prefers-reduced-motion` → décor déjà replié,
+React ne fait que ranger le décor à 2,2 s. Aucun son : pas de geste
+utilisateur au lancement froid (politique autoplay).
+
+## Mode de réponse « mix »
+
+Troisième mode de réponse (après Choix et Saisie) : chaque question montre
+**les portes de quai ET le billet de saisie simultanément**, séparés par une
+couture « ou tapez ». Répondre par clic, par raccourcis 1-4, ou au clavier
+(Entrée) — au choix, question par question. Règle de cohabitation : les
+raccourcis 1-4 se désactivent dès que le billet a le focus (jamais de vol
+de chiffres tapés) ; le focus auto reste réservé au mode Saisie pur.
+
 ## PWA : la gare emportée
 
 `manifest.webmanifest` (standalone, raccourci « Nouveau trajet », icônes du
 logo maison — disque vert smiley — « any » rognées cercle + maskables
 plein carré, issues du PNG source) + `sw.js` écrit main
 (coquille pré-cachée, navigations network-first, statiques cache-first,
-version `KD-LOGO-1` à bumper à chaque release). La marque en en-tête est le
+version `KD-LAUNCH-1` à bumper à chaque release). La marque en en-tête est le
 logo maison (`/logo.png`, rogné `rounded-full`) à la place de l'ancienne
 pastille あ. Le **contrat** : le bouton
 d'installation (pastille en-tête + carte gare) n'existe que tant que l'app

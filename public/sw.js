@@ -1,9 +1,9 @@
 // ─── KANA DOJO · Service worker ───────────────────────────────────────────────
 // Stratégie : coquille pré-cachée à l'installation, navigations en
 // réseau-d'abord (l'app reste fraîche), statiques en cache-d'abord.
-// Version : KD-LOGO-1 (bump à chaque déploiement pour forcer la mise à jour).
+// Version : KD-LAUNCH-1 (bump à chaque déploiement pour forcer la mise à jour).
 
-const CACHE = "kana-dojo-KD-LOGO-1";
+const CACHE = "kana-dojo-KD-LAUNCH-1";
 const CORE = [
   "/",
   "/manifest.webmanifest",

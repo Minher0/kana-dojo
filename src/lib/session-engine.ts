@@ -4,7 +4,8 @@ import { KanaChar, KANA_BY_ID } from "./kana-data";
 import { ProgressData, buildQueue } from "./srs-engine";
 
 export type Direction = "kana2romaji" | "romaji2kana";
-export type QuizMode = "choice" | "typing";
+/** Mode de réponse : choix multiples, saisie clavier, ou les deux à la fois. */
+export type QuizMode = "choice" | "typing" | "mix";
 
 export interface SessionQuestion {
   char: KanaChar;
@@ -165,6 +166,8 @@ function buildQuestion(state: SessionState, stepOffset: number): SessionQuestion
 
   const options = shuffle([char, ...pickDistractors(char, state.pool, 3)]);
 
+  // Mode « mix » : la question porte le mode tel quel — la vue de quiz
+  // affiche alors les portes de quai ET le billet de saisie simultanément.
   return { char, direction: dir, mode: state.mode, options };
 }
 

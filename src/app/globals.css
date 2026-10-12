@@ -377,6 +377,235 @@ html.dark {
   left: 9px;
 }
 
+/* ═══ Séquence de démarrage : mise en service de la gare ════════════════════ */
+/* Verrouillée en palette jour (raccord avec le splash de l'OS : fond émail
+   #f4f5f3 du manifest). Non bloquante : pointer-events none. Timeline 1,84 s
+   portée par les keyframes seules — React ne fait que ranger le décor. */
+
+.launch {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+  animation: kd-launch-hide 1.84s linear forwards;
+}
+@keyframes kd-launch-hide {
+  0% {
+    visibility: visible;
+  }
+  100% {
+    visibility: hidden;
+  }
+}
+
+/* Fond émail — s'efface pendant l'ouverture des portes */
+.launch-bg {
+  position: absolute;
+  inset: 0;
+  background: #f4f5f3;
+  animation: kd-launch-bg 1.84s linear both;
+}
+@keyframes kd-launch-bg {
+  0%,
+  70.6% {
+    opacity: 1;
+  }
+  79%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* La scène : logo, enseigne, LED */
+.launch-stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: kd-launch-stage 1.84s linear both;
+}
+@keyframes kd-launch-stage {
+  0%,
+  62% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  68%,
+  100% {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+.launch-logo-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.launch-logo {
+  width: 112px;
+  height: 112px;
+  border-radius: 9999px;
+  animation: kd-launch-logo 0.55s 0.08s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes kd-launch-logo {
+  0% {
+    transform: scale(0.55);
+    opacity: 0;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.launch-ring {
+  position: absolute;
+  inset: -14px;
+  border-radius: 9999px;
+  border: 3px solid oklch(0.47 0.085 152 / 0.55);
+  animation: kd-launch-ring 0.95s 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes kd-launch-ring {
+  0% {
+    transform: scale(0.82);
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.launch-word {
+  font-family: var(--font-barlow), sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: oklch(0.24 0.01 250);
+  animation: kd-launch-word 0.45s 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.launch-sub {
+  font-family: var(--font-zen), sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: oklch(0.47 0.085 152);
+  animation: kd-launch-word 0.45s 0.46s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes kd-launch-word {
+  0% {
+    transform: translateY(12px);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.launch-led {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 6px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: oklch(0.17 0.006 250);
+  border: 1px solid oklch(0.28 0.006 250);
+  box-shadow: inset 0 2px 6px oklch(0 0 0 / 0.55);
+  animation: kd-launch-word 0.4s 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.launch-led-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: oklch(0.8 0.13 62);
+  box-shadow: 0 0 6px oklch(0.8 0.13 62 / 0.8);
+}
+.launch-led-text {
+  font-family: var(--font-barlow), var(--font-zen), sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: oklch(0.8 0.13 62);
+  text-shadow: 0 0 7px oklch(0.8 0.13 62 / 0.5);
+  white-space: nowrap;
+}
+
+/* Les portes de quai : fermées à 1,30 s, rouvertes à 1,84 s */
+.launch-door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;
+  z-index: 2;
+  background: oklch(0.47 0.085 152);
+  box-shadow: var(--kd-shadow);
+  will-change: transform;
+}
+.launch-door-left {
+  left: 0;
+  border-right: 3px solid oklch(0.985 0.002 115 / 0.35);
+  animation: kd-launch-door-left 1.84s linear both;
+}
+.launch-door-right {
+  right: 0;
+  border-left: 3px solid oklch(0.985 0.002 115 / 0.35);
+  animation: kd-launch-door-right 1.84s linear both;
+}
+.launch .quai-handle {
+  background: oklch(0.985 0.002 115);
+  opacity: 0.75;
+}
+
+@keyframes kd-launch-door-left {
+  0%,
+  47.83% {
+    transform: translateX(-101%);
+  }
+  47.83% {
+    animation-timing-function: cubic-bezier(0.7, 0, 0.3, 1);
+  }
+  70.65% {
+    transform: translateX(0);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  100% {
+    transform: translateX(-101%);
+  }
+}
+@keyframes kd-launch-door-right {
+  0%,
+  47.83% {
+    transform: translateX(101%);
+  }
+  47.83% {
+    animation-timing-function: cubic-bezier(0.7, 0, 0.3, 1);
+  }
+  70.65% {
+    transform: translateX(0);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  100% {
+    transform: translateX(101%);
+  }
+}
+
 /* ── Maquette de téléphone (carte d'installation) ── */
 .phone-mockup {
   width: 124px;

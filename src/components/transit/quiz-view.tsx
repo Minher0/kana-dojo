@@ -134,7 +134,8 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
     [session, feedback, update, bump, reduce]
   );
 
-  // ── Raccourcis clavier : 1-4 en mode choix, Échap pour quitter ──
+  // ── Raccourcis clavier : 1-4 en mode choix (et mix si le billet n'a pas
+  // le focus — on ne vole jamais les chiffres tapés), Échap pour quitter ──
   // Règle Emil : le geste clavier est instantané, seul le panneau réagit.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -143,8 +144,11 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
         onExit();
         return;
       }
-      if (!q || q.mode !== "choice" || finished) return;
+      if (!q || finished) return;
+      if (q.mode !== "choice" && q.mode !== "mix") return;
       if (feedback.kind !== "idle") return;
+      // En mix : si le billet de saisie a le focus, les touches vont au texte
+      if (document.activeElement === inputRef.current) return;
       const idx = Number(e.key) - 1;
       if (idx >= 0 && idx < q.options.length) {
         e.preventDefault();
@@ -279,8 +283,8 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
             />
           </motion.div>
 
-          {/* ── Portes du quai (mode choix) ── */}
-          {q.mode === "choice" ? (
+          {/* ── Portes du quai (choix — pures ou mixtes) ── */}
+          {q.mode !== "typing" && (
             <div className="grid grid-cols-2 gap-2.5" role="group" aria-label="Réponses possibles">
               {q.options.map((opt, i) => {
                 const optValue = isKana2Romaji ? opt.romaji : opt.kana;
@@ -327,8 +331,21 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
                 );
               })}
             </div>
-          ) : (
-            // ── Billet de saisie ──
+          )}
+
+          {/* ── Couture « ou tapez » : en mix, les deux gestes cohabitent ── */}
+          {q.mode === "mix" && feedback.kind === "idle" && (
+            <div className="flex items-center gap-3 px-6" aria-hidden>
+              <span className="h-px flex-1 bg-border" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                ou tapez
+              </span>
+              <span className="h-px flex-1 bg-border" />
+            </div>
+          )}
+
+          {/* ── Billet de saisie (purs et mixtes) ── */}
+          {(q.mode === "typing" || q.mode === "mix") && (
             <form
               className="flex flex-col items-center gap-2"
               onSubmit={(e) => {
@@ -403,9 +420,11 @@ export function QuizView({ session, update, bump, onExit, onRestart }: QuizViewP
       </div>
 
       {/* ── Aide clavier, discrète ── */}
-      {q.mode === "choice" && feedback.kind === "idle" && (
+      {feedback.kind === "idle" && !finished && (q.mode === "choice" || q.mode === "mix") && (
         <p className="text-center text-[11px] text-muted-foreground/70">
-          Touches 1 à 4 pour répondre
+          {q.mode === "mix"
+            ? "Touches 1 à 4 pour répondre, ou tapez votre réponse"
+            : "Touches 1 à 4 pour répondre"}
         </p>
       )}
     </motion.div>

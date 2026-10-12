@@ -26,8 +26,11 @@ mémoire (effet de répétition espacée et test actif).
 - **Syllabaires** : hiragana ひらがな, katakana カタカナ, ou les deux.
 - **Groupes** : base (gojūon, 46), dakuten/handakuten (25), yōon (33).
 - **Sens** : kana → rōmaji, rōmaji → kana, ou mixte.
-- **Réponse** : choix multiples (raccourcis clavier 1-4) ou saisie clavier
-  (variantes acceptées : *shi/si*, *chi/ti*, *fu/hu*…).
+- **Réponse** : choix multiples (raccourcis clavier 1-4), saisie clavier
+  (variantes acceptées : *shi/si*, *chi/ti*, *fu/hu*…), ou **mix** —
+  les deux disponibles en même temps sur chaque question.
+- **Démarrage** : au lancement, une « mise en service » animée (logo,
+  enseigne, LED, portes de quai qui s'ouvrent sur la gare) — non bloquante.
 
 ### Statistiques
 - Précision globale, série de jours consécutifs, sessions, réponses du jour.

@@ -19,7 +19,6 @@ import {
   Train,
   Sun,
 } from "@phosphor-icons/react";
-import { Roundel } from "./roundel";
 import { StationClock } from "./station-clock";
 import { RailAmbience } from "./pass-effects";
 import { DOOR_CLOSE, DOOR_OPEN } from "./motion";
@@ -163,7 +162,15 @@ export function AppShell({ view, onNavigate, focusMode, line, children }: ShellP
             className="flex items-center gap-2.5 rounded-md focus-visible:outline-offset-4"
             aria-label="Kana Dojo, retour à la gare"
           >
-            <Roundel level="mastered" size={26} active script="hiragana" />
+            <img
+              src="/logo.png"
+              alt=""
+              width={26}
+              height={26}
+              decoding="async"
+              draggable={false}
+              className="rounded-full"
+            />
             <span className="flex flex-col items-start leading-none">
               <span className="text-[15px] font-extrabold tracking-[0.06em]">
                 KANA DOJO

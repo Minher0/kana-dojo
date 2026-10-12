@@ -118,10 +118,13 @@ Toutes GPU (transform / opacity / filter), `prefers-reduced-motion` partout :
 
 ## PWA : la gare emportée
 
-`manifest.webmanifest` (standalone, raccourci « Nouveau trajet », icônes
-uguisu あ any/maskable générées par rendu navigateur) + `sw.js` écrit main
+`manifest.webmanifest` (standalone, raccourci « Nouveau trajet », icônes du
+logo maison — disque vert smiley — « any » rognées cercle + maskables
+plein carré, issues du PNG source) + `sw.js` écrit main
 (coquille pré-cachée, navigations network-first, statiques cache-first,
-version `KD-SFX-1` à bumper à chaque release). Le **contrat** : le bouton
+version `KD-LOGO-1` à bumper à chaque release). La marque en en-tête est le
+logo maison (`/logo.png`, rogné `rounded-full`) à la place de l'ancienne
+pastille あ. Le **contrat** : le bouton
 d'installation (pastille en-tête + carte gare) n'existe que tant que l'app
 n'est pas installée — Android via `beforeinstallprompt`, iOS via feuille
 d'instructions « Sur l'écran d'accueil ». Installé (`display-mode:

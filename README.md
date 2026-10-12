@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/logo.png" width="120" alt="Logo Kana Dojo" />
+</p>
+
 # Kana Dojo 仮
 
 **Apprenez les hiragana et les katakana avec la répétition espacée adaptative.**

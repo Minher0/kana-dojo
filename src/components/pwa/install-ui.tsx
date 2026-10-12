@@ -50,8 +50,16 @@ export function InstallCard() {
         <div className="phone-mockup relative shrink-0" aria-hidden>
           <div className="phone-screen">
             <div className="flex h-full flex-col items-center justify-center gap-2.5">
-              <span className="flex size-11 items-center justify-center rounded-full bg-line-h">
-                <span className="font-kana text-2xl font-black leading-none text-line-h-foreground">あ</span>
+              <span className="flex size-11 items-center justify-center">
+                <img
+                  src="/logo.png"
+                  alt=""
+                  width={44}
+                  height={44}
+                  decoding="async"
+                  draggable={false}
+                  className="rounded-full"
+                />
               </span>
               <span className="text-[9px] font-extrabold uppercase tracking-[0.18em] text-foreground">
                 KANA DOJO

@@ -29,7 +29,10 @@ export default function Page() {
 
   const pool = useMemo<KanaChar[]>(() => {
     return ALL_KANA.filter(
-      (k) => settings.scripts.includes(k.script) && settings.groups.includes(k.group)
+      (k) =>
+        settings.scripts.includes(k.script) &&
+        settings.groups.includes(k.group) &&
+        !(settings.kanaExclusions ?? []).includes(k.id)
     );
   }, [settings]);
 
@@ -87,7 +90,9 @@ export default function Page() {
         <StatsView pool={pool} progress={progress} onStart={launchSession} />
       )}
 
-      {view === "network" && <NetworkView progress={progress} />}
+      {view === "network" && (
+        <NetworkView progress={progress} excludedIds={settings.kanaExclusions ?? []} />
+      )}
     </AppShell>
   );
 }

@@ -5,12 +5,13 @@
 // de trajet (lignes, sections, longueur, sens, réponse) et état du réseau.
 // Composition asymétrique : planificateur à gauche, réseau à droite.
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   CalendarBlank,
   Crosshair,
   Flame,
+  ListChecks,
   SealCheck,
   Train,
 } from "@phosphor-icons/react";
@@ -20,8 +21,9 @@ import { MasteryStrip } from "./line-strip";
 import { Roundel } from "./roundel";
 import { LedTicker } from "./led-ticker";
 import { SECTIONS, lineOf } from "./tokens";
+import { StationPicker } from "./station-picker";
 import { InstallCard } from "@/components/pwa/install-ui";
-import { KanaChar, KanaGroup } from "@/lib/kana-data";
+import { ALL_KANA, KanaChar, KanaGroup } from "@/lib/kana-data";
 import { ProgressData, computeGlobalStats, masteryOf } from "@/lib/srs-engine";
 import { Settings } from "@/lib/progress-store";
 import { getCharState } from "@/lib/progress-store";
@@ -47,6 +49,7 @@ export function HomeView({
   onOpenNetwork,
 }: HomeViewProps) {
   const reduce = useReducedMotion();
+  const [pickerOpen, setPickerOpen] = useState(false);
   const stats = useMemo(() => computeGlobalStats(pool, progress), [pool, progress]);
 
   const weakest = useMemo(() => {
@@ -64,6 +67,14 @@ export function HomeView({
   }, [pool, progress]);
 
   const poolEmpty = pool.length === 0;
+  // Étendue du scope courant (lignes × sections), hors décochages fins
+  const scopeTotal = useMemo(
+    () =>
+      ALL_KANA.filter(
+        (k) => settings.scripts.includes(k.script) && settings.groups.includes(k.group)
+      ).length,
+    [settings.scripts, settings.groups]
+  );
   const percentMastered =
     pool.length > 0 ? Math.round((stats.mastered / pool.length) * 100) : 0;
   const hasData = stats.totalAttempts > 0;
@@ -246,6 +257,34 @@ export function HomeView({
               </div>
             </fieldset>
 
+            {/* Stations : sélection fine (feuille de service) */}
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  sfx.doors();
+                  setPickerOpen(true);
+                }}
+                className="flex w-full items-center gap-3 rounded-lg border-2 border-border bg-card px-4 py-3 text-left transition-[border-color] duration-200 hover:border-line-h/60 active:scale-[0.99]"
+              >
+                <span
+                  className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-line-h-soft text-line-h"
+                  aria-hidden
+                >
+                  <ListChecks size={18} weight="bold" />
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="text-sm font-bold">Feuille de service</span>
+                  <span className="text-xs text-muted-foreground">
+                    Choisir les stations à étudier, kana par kana
+                  </span>
+                </span>
+                <span className="tnum shrink-0 rounded-md border border-border bg-secondary/60 px-2.5 py-1 text-[11px] font-bold text-muted-foreground">
+                  {pool.length}/{scopeTotal}
+                </span>
+              </button>
+            </div>
+
             {/* Longueur / Sens / Réponse */}
             <div className="grid gap-5 sm:grid-cols-3">
               <ChipRow
@@ -307,7 +346,7 @@ export function HomeView({
               </motion.button>
               <p className="text-xs text-muted-foreground">
                 {poolEmpty
-                  ? "Sélectionnez au moins une ligne et une section pour partir."
+                  ? "Sélectionnez au moins une ligne, une section et une station pour partir."
                   : settings.mode === "mix"
                     ? "En mode Mix, la moitié des stations se jouent aux portes (QCM), l'autre moitié au clavier (saisie) — l'ordre est tiré au départ. Les ratées reviennent jusqu'à être réussies."
                     : "Les stations ratées reviennent jusqu'à être réussies, puis le SRS les espace."}
@@ -380,6 +419,14 @@ export function HomeView({
 
       {/* ── Installation sur l'écran d'accueil (tant que ce n'est pas fait) ── */}
       <InstallCard />
+
+      {/* ── Feuille de service : sélection fine des stations ── */}
+      <StationPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        settings={settings}
+        updateSettings={updateSettings}
+      />
     </motion.div>
   );
 }

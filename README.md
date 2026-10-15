@@ -30,6 +30,10 @@ mémoire (effet de répétition espacée et test actif).
   (variantes acceptées : *shi/si*, *chi/ti*, *fu/hu*…), ou **mix** —
   la moitié des questions en QCM, l'autre moitié en saisie (répartition
   tirée au départ, l'ordre est battu).
+- **Stations** : sélection fine kana par kana via la **feuille de service**
+  (208 stations, tout est coché par défaut — décochez ce que vous ne voulez
+  pas étudier). Basculées par ligne, par section ou à l'unité ; les stations
+  hors service apparaissent éteintes sur le plan du réseau.
 - **Démarrage** : au lancement, une « mise en service » animée (logo,
   enseigne, LED, portes de quai qui s'ouvrent sur la gare) — non bloquante.
 

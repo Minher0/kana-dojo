@@ -146,13 +146,35 @@ possible), et le billet prend le focus à son montage (`autoFocus` — un
 effet courrait trop tôt, l'AnimatePresence « wait » retarde le montage
 après la sortie de la question précédente).
 
+## Feuille de service : sélection fine des stations
+
+La sélection ne s'arrête pas aux lignes et sections : un panneau modal
+(« Feuille de service », ouvert depuis le planificateur) permet de cocher
+ou décocher **chaque kana individuellement** — tout est coché par défaut.
+L'état vit dans les réglages (`kanaExclusions`, liste d'ids — vide = tout
+le réseau desservi) : il survit aux trajets et aux rechargements. Le pool
+d'étude est l'**intersection** des trois niveaux : lignes (H/K) ∩ sections
+(base/dakuten/yōon) ∩ feuille de service.
+
+- Tuiles cochables (`role="checkbox"`), en service = bord ligne pleine,
+  hors service = bord pointillé + atténuation ; le libellé accessible
+  porte l'état (« き ki, hors service »).
+- Bascules groupées **tri-état standard** : une section/ligne
+  partiellement cochée se complète au clic, une entièrement cochée se
+  décoche — compteurs à chaque niveau (tuile × section × ligne × global).
+- Fermeture par « Terminé », Échap ou scrim ; verrou de défilement du
+  fond, focus au bouton de fermeture, `prefers-reduced-motion` replié.
+- Le **plan du réseau** reflète la feuille : stations hors service
+  éteintes (pointillées, atténuées) + entrée de légende conditionnelle.
+- Départ désactivé si le pool tombe à zéro (message adapté).
+
 ## PWA : la gare emportée
 
 `manifest.webmanifest` (standalone, raccourci « Nouveau trajet », icônes du
 logo maison — disque vert smiley — « any » rognées cercle + maskables
 plein carré, issues du PNG source) + `sw.js` écrit main
 (coquille pré-cachée, navigations network-first, statiques cache-first,
-version `KD-MIX-1` à bumper à chaque release). La marque en en-tête est le
+version `KD-STATIONS-1` à bumper à chaque release). La marque en en-tête est le
 logo maison (`/logo.png`, rogné `rounded-full`) à la place de l'ancienne
 pastille あ. Le **contrat** : le bouton
 d'installation (pastille en-tête + carte gare) n'existe que tant que l'app

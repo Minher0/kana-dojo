@@ -20,8 +20,11 @@ export interface Settings {
   groups: ("base" | "dakuten" | "yoon")[];
   sessionSize: number;
   direction: "kana2romaji" | "romaji2kana" | "mixed";
-  /** Mode de réponse : choix, saisie clavier, ou les deux à la fois (mix). */
+  /** Mode de réponse : choix, saisie clavier, ou mix (moitié QCM / moitié saisie). */
   mode: "choice" | "typing" | "mix";
+  /** Stations mises hors service par la feuille de service (ids de kana).
+   *  Vide = tout le réseau est desservi (tout est coché par défaut). */
+  kanaExclusions?: string[];
   /** Effets sonores de la gare (carillons, mélodies, rames). */
   soundOn?: boolean;
   /** Volume général des effets (0-1). */
@@ -34,6 +37,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sessionSize: 10,
   direction: "kana2romaji",
   mode: "choice",
+  kanaExclusions: [],
   soundOn: true,
   soundVolume: 0.7,
 };

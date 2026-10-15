@@ -11,6 +11,7 @@ import { boardStagger, panelEnter } from "./motion";
 import { Roundel } from "./roundel";
 import { SECTIONS, lineOf, stationStateOf } from "./tokens";
 import {
+  ALL_KANA,
   HIRAGANA_BASE,
   HIRAGANA_DAKUTEN,
   HIRAGANA_YOON,
@@ -24,6 +25,8 @@ import { ProgressData, masteryOf } from "@/lib/srs-engine";
 
 interface NetworkViewProps {
   progress: ProgressData;
+  /** Stations hors service (feuille de service) : elles apparaissent éteintes. */
+  excludedIds?: string[];
 }
 
 type Script = "hiragana" | "katakana";
@@ -46,10 +49,11 @@ const GROUPS: Record<Script, { group: KanaGroup; chars: KanaChar[] }[]> = {
   ],
 };
 
-export function NetworkView({ progress }: NetworkViewProps) {
+export function NetworkView({ progress, excludedIds = [] }: NetworkViewProps) {
   const reduce = useReducedMotion();
   const [script, setScript] = useState<Script>("hiragana");
   const line = lineOf(script);
+  const excluded = useMemo(() => new Set(excludedIds), [excludedIds]);
 
   // Regroupement par rangée, calculé une fois par ligne choisie
   const sectionRows = useMemo(
@@ -72,7 +76,8 @@ export function NetworkView({ progress }: NetworkViewProps) {
       <motion.header variants={panelEnter} className="flex flex-col gap-1">
         <h1 className="text-xl font-extrabold tracking-tight">Plan du réseau</h1>
         <p className="text-sm text-muted-foreground">
-          204 stations sur deux lignes. La couleur indique l&apos;état de chacune.
+          {ALL_KANA.length} stations sur deux lignes. La couleur indique
+          l&apos;état de chacune.
         </p>
       </motion.header>
 
@@ -132,6 +137,15 @@ export function NetworkView({ progress }: NetworkViewProps) {
             {label}
           </li>
         ))}
+        {excluded.size > 0 && (
+          <li className="flex items-center gap-1.5">
+            <span
+              className="flex size-[9px] items-center justify-center rounded-[3px] border border-dashed border-muted-foreground bg-muted"
+              aria-hidden
+            />
+            hors service
+          </li>
+        )}
       </motion.ul>
 
       {/* ── Sections de la ligne ── */}
@@ -169,7 +183,12 @@ export function NetworkView({ progress }: NetworkViewProps) {
                   </span>
                   <ul className="flex flex-1 flex-wrap gap-1.5">
                     {row.chars.map((c) => (
-                      <StationTile key={c.id} char={c} progress={progress} />
+                      <StationTile
+                        key={c.id}
+                        char={c}
+                        progress={progress}
+                        offService={excluded.has(c.id)}
+                      />
                     ))}
                   </ul>
                 </div>
@@ -184,7 +203,15 @@ export function NetworkView({ progress }: NetworkViewProps) {
 
 // ── Tuile de station ──────────────────────────────────────────────────────────
 
-function StationTile({ char, progress }: { char: KanaChar; progress: ProgressData }) {
+function StationTile({
+  char,
+  progress,
+  offService = false,
+}: {
+  char: KanaChar;
+  progress: ProgressData;
+  offService?: boolean;
+}) {
   const state = progress.chars[char.id];
   const level = masteryOf(state);
   const meta = stationStateOf(level);
@@ -193,11 +220,12 @@ function StationTile({ char, progress }: { char: KanaChar; progress: ProgressDat
   return (
     <li
       role="img"
-      aria-label={`${char.kana}, ${char.romaji}, ${meta.label}${acc !== null ? `, ${acc} %` : ""}`}
+      aria-label={`${char.kana}, ${char.romaji}, ${meta.label}${acc !== null ? `, ${acc} %` : ""}${offService ? ", hors service" : ""}`}
       className={[
         "flex w-[4.25rem] flex-col items-center gap-0.5 rounded-md border-2 bg-card px-1 py-1.5 transition-colors",
-        meta.tileClass || "border-border",
-        meta.ringClass,
+        offService
+          ? "border-dashed border-border opacity-45"
+          : [meta.tileClass || "border-border", meta.ringClass].join(" "),
       ].join(" ")}
     >
       <span className="font-kana text-[1.35rem] font-bold leading-none">{char.kana}</span>
